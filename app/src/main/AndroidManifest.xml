@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <permission
+        android:name="io.github.xboto.termrovercfaccess.permission.CLOSE_TERMROVER"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="io.github.xboto.termrovercfaccess.permission.CLOSE_TERMROVER" />
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="TermRover CF Access"
+        android:description="@string/module_desc"
+        android:theme="@android:style/Theme.DeviceDefault"
+        android:extractNativeLibs="true"
+        tools:ignore="MissingApplicationIcon,MissingClass">
+        <activity
+            android:name=".ThemesActivity"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:label="TermRover CF Access">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

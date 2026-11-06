@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="module_desc">Cloudflare Access for cf: hosts, Firebase/GMS telemetry blocking and importable custom themes for TermRover.</string>
+</resources>
