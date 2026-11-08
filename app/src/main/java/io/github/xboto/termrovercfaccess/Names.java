@@ -169,7 +169,30 @@ public final class Names {
         quickSettings = "y"; quickSettingsBody = "x"; quickSettingsHost = "pa";
     }}.build();
 
-    private static final Names[] ALL = {V1_4_0, V1_3_1};
+    static final Names V1_4_1 = new Builder() {{
+        version = "1.4.1";
+        unit = "q16"; fn0 = "z22"; fn1 = "a32"; modifier = "zq3"; modifierCompanion = "wq3";
+        composer = "bt0"; switchColors = "jk5"; shape = "d65"; continuation = "sx0";
+        metaReader = "fl6"; sessionsReader = "vj3"; cctBackend = "ib"; cctUpload = "d";
+        cctRequest = "di0"; cctResponse = "xk0"; crashWriter = "w95"; crashWriterMethod = "a";
+        aboutReader = "j55"; switchCallback = "sk"; rowToggle = "bl";
+        themes = "ct5"; theme = "sm5"; themeChrome = "pm0";
+        conn = "qf5"; connSocket = "D"; connCancel = "I"; connSuspend = "J"; connSuspendFn = "ke5";
+        transportFactory = "wl"; directKind = -1; socketTransport = "ub5";
+        formFields = "p17"; formField = "s"; fieldRestart = "ar2"; rows = "na5"; toggleRow = "Z";
+        graphicsLayerFloats = 5; graphicsLayerAlphaMask = 1 | 2 | 0x20 | 0x100 | 0x800 | 0x1000;
+        authRow = "l"; authOption = "k"; authEnum = "w20"; transportEnum = "ju0";
+        transportPickerOwner = "nz5"; transportPicker = "a";
+        clipOwner = "nz5"; clip = "s"; borderOwner = "jf6"; border = "q"; rectShapeOwner = "cc6";
+        rectShape = "e"; roundedOwner = "yr4"; rounded = "b"; spOwner = "k95"; sp = "m";
+        switchColorsOwner = "om6"; switchColorsFn = "b"; fontWeight = "kz1"; fontFamily = "fy1";
+        textDecoration = "iq5"; textAlign = "bq5"; textStyle = "vs5"; text = "as5"; colors = "z34";
+        profile = "yr2"; menu = "wx0"; menuRow = "o"; menuItems = "m";
+        session = "f"; sessionParams = 36; switcher = "f0"; switcherNoteArg = true;
+        quickSettings = "y"; quickSettingsBody = "x"; quickSettingsHost = "pa";
+    }}.build();
+
+    private static final Names[] ALL = {V1_4_1, V1_4_0, V1_3_1};
 
     public static Names detect(ClassLoader cl) {
         for (Names n : ALL) {

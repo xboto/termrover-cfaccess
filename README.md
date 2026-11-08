@@ -9,15 +9,35 @@ A [Vector](https://github.com/JingMatrix/Vector) / libxposed module for [TermRov
 ## Requirements
 
 - Android arm64 with Vector (API 102) or a compatible framework
-- TermRover 1.4.0 or 1.3.1 (the module detects the build and uses its R8 names)
+- TermRover 1.4.1, 1.4.0 or 1.3.1 (the module detects the build and uses its R8 names)
 - Module scope: `sh.termrover.app`
 
 ## Installation
 
 1. Install the APK, enable it in Vector and add TermRover to its scope.
-2. Restart TermRover.
+2. Restart TermRover (after a fresh install or update of TermRover, **reboot the device**).
 3. On a host, use `cf:your-hostname` as the address or turn on the Cloudflare Access switch.
 4. Themes: Vector → module → Open companion app → turn on **Custom themes**, then Import a `termrover-themes` v1 JSON file. A ready-made example is [`examples/custom-themes.json`](examples/custom-themes.json) (edit or trim it as you like; it is not bundled in the APK).
+
+### After reinstalling or updating TermRover
+
+Reinstalling TermRover assigns it a new app UID. Vector attaches to the new
+process but does not load modules into it until the device is rebooted.
+
+If you reinstall or update TermRover, **reboot the device** before opening it.
+
+### Sideload install (non-Play)
+
+When installing TermRover APKs manually via `adb` outside of Google Play, pass
+`-i com.android.vending` so the system registers Google Play Store as the
+installer:
+
+```bash
+adb install-multiple -r -i com.android.vending \
+  base.apk split_config.arm64_v8a.apk split_config.es.apk split_config.xxhdpi.apk
+```
+
+Then **reboot the device** before launching TermRover.
 
 ## Why telemetry blocking
 
