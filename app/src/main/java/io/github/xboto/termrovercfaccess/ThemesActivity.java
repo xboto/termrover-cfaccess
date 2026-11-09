@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -42,13 +43,13 @@ public class ThemesActivity extends Activity {
     private static ThemesActivity active;
 
     private volatile XposedService service;
-    private TextView status;
     private LinearLayout list;
     private Button btnImport;
     private Button btnExport;
     private Button btnClear;
     private String currentJson;
     private Switch themesSwitch;
+    private Switch rsaSha2Switch;
     private LinearLayout themesBody;
 
     @Override
@@ -106,7 +107,7 @@ public class ThemesActivity extends Activity {
         service = null;
         runOnUiThread(() -> {
             themesSwitch.setEnabled(false);
-            status.setVisibility(View.VISIBLE);
+            rsaSha2Switch.setEnabled(false);
             setButtons(false);
             setStatus("Vector disconnected. Reopen this screen.");
         });
@@ -130,6 +131,15 @@ public class ThemesActivity extends Activity {
                 "cf: hosts connect through the bundled cloudflared."));
         root.addView(forcedSwitch("Block telemetry",
                 "Firebase crash and usage reporting is blocked in TermRover."));
+
+        rsaSha2Switch = new Switch(this);
+        rsaSha2Switch.setEnabled(false);
+        rsaSha2Switch.setChecked(true);
+        rsaSha2Switch.setOnClickListener(v -> saveRsaSha2(rsaSha2Switch.isChecked()));
+        root.addView(switchCard("RSA SHA-2 signatures",
+                "Signs RSA keys with rsa-sha2-* instead of ssh-rsa (SHA-1). "
+                        + "Needed for modern OpenSSH. Applies on the next connect.",
+                rsaSha2Switch));
 
         themesSwitch = new Switch(this);
         themesSwitch.setEnabled(false);
@@ -160,12 +170,6 @@ public class ThemesActivity extends Activity {
         buttons.addView(btnExport);
         buttons.addView(btnClear);
         themesBody.addView(buttons);
-
-        status = new TextView(this);
-        status.setTextSize(13);
-        status.setPadding(0, dp(10), 0, dp(10));
-        status.setTextIsSelectable(true);
-        root.addView(status, root.indexOfChild(themesBody));
 
         ScrollView scroll = new ScrollView(this);
         list = new LinearLayout(this);
@@ -237,8 +241,8 @@ public class ThemesActivity extends Activity {
     }
 
     private void setStatus(String s) {
-        status.setText(s);
         Log.i(TAG, "ThemesActivity: " + s.replace("\n", " | "));
+        Toast.makeText(this, s, Toast.LENGTH_LONG).show();
     }
 
     private void reload() {
@@ -279,12 +283,38 @@ public class ThemesActivity extends Activity {
         }
         showThemes(on);
         themesSwitch.setEnabled(true);
+        boolean rsaOn = true;
+        try {
+            rsaOn = s.getRemotePreferences(ThemeStore.PREFS)
+                    .getBoolean(ThemeStore.KEY_RSA_SHA2, true);
+        } catch (Throwable ignored) {
+        }
+        rsaSha2Switch.setChecked(rsaOn);
+        rsaSha2Switch.setEnabled(true);
+    }
+
+    private void saveRsaSha2(boolean on) {
+        XposedService s = service;
+        boolean saved = false;
+        try {
+            saved = s != null && s.getRemotePreferences(ThemeStore.PREFS).edit()
+                    .putBoolean(ThemeStore.KEY_RSA_SHA2, on).commit();
+        } catch (Throwable t) {
+            Log.w(TAG, "saving rsa_sha2_enabled failed", t);
+        }
+        if (!saved) {
+            rsaSha2Switch.setChecked(!on);
+            setStatus("Could not save RSA SHA-2. Reopen this screen and try again.");
+            return;
+        }
+        setStatus(on
+                ? "RSA SHA-2 on. Next RSA connect uses rsa-sha2-*."
+                : "RSA SHA-2 off. Next RSA connect may use ssh-rsa (SHA-1).");
     }
 
     private void showThemes(boolean on) {
         themesSwitch.setChecked(on);
         themesBody.setVisibility(on ? View.VISIBLE : View.GONE);
-        status.setVisibility(on ? View.VISIBLE : View.GONE);
     }
 
     private void askThemesChange(boolean on) {
@@ -313,7 +343,6 @@ public class ThemesActivity extends Activity {
         }
         if (!saved) {
             showThemes(!on);
-            status.setVisibility(View.VISIBLE);
             setStatus("Could not save the setting. Reopen this screen and try again.");
             return;
         }
@@ -330,7 +359,6 @@ public class ThemesActivity extends Activity {
             public void onReceive(android.content.Context c, Intent r) {
                 boolean wasRunning = getResultCode() == ModuleMain.CLOSE_ACK;
                 Log.i(TAG, "close broadcast answered, running=" + wasRunning);
-                status.setVisibility(View.VISIBLE);
                 setStatus(wasRunning
                         ? "TermRover closed. The change applies the next time you open it."
                         : "Setting saved. The change applies the next time you open TermRover.");

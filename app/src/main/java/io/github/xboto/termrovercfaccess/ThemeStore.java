@@ -15,6 +15,8 @@ final class ThemeStore {
 
     static final String PREFS = "settings";
     static final String KEY_ENABLED = "themes_enabled";
+
+    static final String KEY_RSA_SHA2 = "rsa_sha2_enabled";
     static final String FORMAT = "termrover-themes";
     static final int VERSION = 1;
     static final int MAX_THEMES = 300;

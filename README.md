@@ -4,40 +4,36 @@ A [Vector](https://github.com/JingMatrix/Vector) / libxposed module for [TermRov
 
 - **Cloudflare Access** for `cf:hostname` hosts, through `cloudflared access tcp`. Hosts can also be switched to Access from the host form.
 - **Telemetry blocking** for Firebase and Google Play Services analytics endpoints.
+- **RSA SHA-2 signatures** (on by default): RSA user keys are signed with `rsa-sha2-*` instead of legacy `ssh-rsa` (SHA-1), so modern OpenSSH accepts them. Toggle in the companion screen; applies on the next connect.
 - **Custom themes** (optional, off by default): import your own terminal themes from a JSON file through the module's companion screen. Turning the switch on or off closes TermRover; the change applies the next time it opens.
 
 ## Requirements
 
 - Android arm64 with Vector (API 102) or a compatible framework
-- TermRover 1.4.1, 1.4.0 or 1.3.1 (the module detects the build and uses its R8 names)
+- TermRover 1.4.1, 1.4.0 or 1.3.1
 - Module scope: `sh.termrover.app`
 
 ## Installation
 
 1. Install the APK, enable it in Vector and add TermRover to its scope.
-2. Restart TermRover (after a fresh install or update of TermRover, **reboot the device**).
+2. Restart TermRover (after a fresh install or update of TermRover, reboot the device).
 3. On a host, use `cf:your-hostname` as the address or turn on the Cloudflare Access switch.
 4. Themes: Vector → module → Open companion app → turn on **Custom themes**, then Import a `termrover-themes` v1 JSON file. A ready-made example is [`examples/custom-themes.json`](examples/custom-themes.json) (edit or trim it as you like; it is not bundled in the APK).
 
-### After reinstalling or updating TermRover
+### Sideload note (optional)
 
-Reinstalling TermRover assigns it a new app UID. Vector attaches to the new
-process but does not load modules into it until the device is rebooted.
-
-If you reinstall or update TermRover, **reboot the device** before opening it.
-
-### Sideload install (non-Play)
-
-When installing TermRover APKs manually via `adb` outside of Google Play, pass
-`-i com.android.vending` so the system registers Google Play Store as the
-installer:
+If you install TermRover manually outside Google Play and encounter a Google Play error, you can optionally install with `adb -i`:
 
 ```bash
 adb install-multiple -r -i com.android.vending \
-  base.apk split_config.arm64_v8a.apk split_config.es.apk split_config.xxhdpi.apk
+  base.apk split_config.arm64_v8a.apk split_config.xxhdpi.apk
 ```
 
-Then **reboot the device** before launching TermRover.
+Then reboot the device before opening TermRover.
+
+### After reinstalling or updating TermRover
+
+Reinstalling or updating TermRover requires a device reboot so Vector can inject the module. Reboot the device before opening TermRover.
 
 ## Why telemetry blocking
 

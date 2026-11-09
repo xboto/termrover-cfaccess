@@ -27,6 +27,10 @@ public class ModuleMain extends XposedModule {
     static final String CLOSE_PERMISSION = "io.github.xboto.termrovercfaccess.permission.CLOSE_TERMROVER";
     static final int CLOSE_ACK = 1;
 
+    private static final String ALG_SSH_RSA = "ssh-rsa";
+    private static final String ALG_RSA_SHA2_512 = "rsa-sha2-512";
+    private static final String ALG_RSA_SHA2_256 = "rsa-sha2-256";
+
     private static final Set<String> OFF_KEYS = new HashSet<>();
     private static final Set<String> DEACTIVATED_KEYS = new HashSet<>();
 
@@ -58,6 +62,7 @@ public class ModuleMain extends XposedModule {
     private final AtomicBoolean appLifecycleHooked = new AtomicBoolean();
     private final AtomicBoolean uiLocksHooked = new AtomicBoolean();
     private final AtomicBoolean telemetrySwitchLogged = new AtomicBoolean();
+    private final AtomicBoolean rsaSha2Hooked = new AtomicBoolean();
 
     private volatile ClassLoader appCl;
     private volatile Names names;
@@ -82,6 +87,7 @@ public class ModuleMain extends XposedModule {
         resolveNames(cl);
         hookTelemetry(cl);
         hookUrlOpenConnection();
+        hookRsaSha2(cl);
     }
 
     @Override
@@ -95,6 +101,7 @@ public class ModuleMain extends XposedModule {
         resolveNames(cl);
         hookTelemetry(cl);
         hookUrlOpenConnection();
+        hookRsaSha2(cl);
         hookAppLifecycle(cl);
         hookUiLocks(cl);
         installCustomThemes(cl);
@@ -275,6 +282,79 @@ public class ModuleMain extends XposedModule {
             }
         }
         return chain.proceed();
+    }
+
+    private void hookRsaSha2(ClassLoader cl) {
+        if (cl == null || !rsaSha2Hooked.compareAndSet(false, true)) {
+            return;
+        }
+        try {
+            Class<?> companion = Class.forName(
+                    "org.connectbot.sshlib.crypto.SignatureEntry$Companion", true, cl);
+            Method m = companion.getDeclaredMethod(
+                    "negotiateRsaAlgorithm", Set.class, Set.class);
+            hook(m).intercept(chain -> {
+                Object result = chain.proceed();
+                if (!isRsaSha2Enabled()) {
+                    return result;
+                }
+                if (!ALG_SSH_RSA.equals(result)) {
+                    return result;
+                }
+                @SuppressWarnings("unchecked")
+                Set<String> clientAlgs = (Set<String>) chain.getArg(1);
+                String upgraded = preferRsaSha2(clientAlgs);
+                log(Log.INFO, TAG, "RSA userauth: " + ALG_SSH_RSA + " → " + upgraded);
+                return upgraded;
+            });
+            log(Log.INFO, TAG, "hooked SignatureEntry.negotiateRsaAlgorithm (RSA SHA-2)");
+            selfTestRsaSha2(cl, m);
+        } catch (Throwable t) {
+            rsaSha2Hooked.set(false);
+            log(Log.ERROR, TAG, "RSA SHA-2 hook failed", t);
+        }
+    }
+
+    private void selfTestRsaSha2(ClassLoader cl, Method m) {
+        try {
+            Class<?> se = Class.forName(
+                    "org.connectbot.sshlib.crypto.SignatureEntry", true, cl);
+            Object companion = se.getField("Companion").get(null);
+            Set<String> client = new HashSet<>();
+            client.add(ALG_RSA_SHA2_512);
+            client.add(ALG_RSA_SHA2_256);
+            client.add(ALG_SSH_RSA);
+            Object got = m.invoke(companion, null, client);
+            log(Log.INFO, TAG, "RSA SHA-2 self-test (null serverSigAlgs) → " + got
+                    + (ALG_RSA_SHA2_512.equals(got) || ALG_RSA_SHA2_256.equals(got)
+                    ? " OK" : " FAIL expected rsa-sha2-*"));
+        } catch (Throwable t) {
+            log(Log.WARN, TAG, "RSA SHA-2 self-test failed: " + t.getMessage());
+        }
+    }
+
+    private boolean isRsaSha2Enabled() {
+        try {
+            if ((getFrameworkProperties() & PROP_CAP_REMOTE) == 0) {
+                return true;
+            }
+            return getRemotePreferences(ThemeStore.PREFS)
+                    .getBoolean(ThemeStore.KEY_RSA_SHA2, true);
+        } catch (Throwable t) {
+            return true;
+        }
+    }
+
+    private static String preferRsaSha2(Set<String> clientAlgs) {
+        if (clientAlgs != null) {
+            if (clientAlgs.contains(ALG_RSA_SHA2_512)) {
+                return ALG_RSA_SHA2_512;
+            }
+            if (clientAlgs.contains(ALG_RSA_SHA2_256)) {
+                return ALG_RSA_SHA2_256;
+            }
+        }
+        return ALG_RSA_SHA2_512;
     }
 
     private static boolean isBlockedHost(String host) {
