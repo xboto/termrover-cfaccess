@@ -561,8 +561,7 @@ public class ModuleMain extends XposedModule {
             Method rowInvoke = row.getDeclaredMethod("invoke");
             Field rowKind = row.getDeclaredField("o");
             rowKind.setAccessible(true);
-            Field rowState = row.getDeclaredField("p");
-            rowState.setAccessible(true);
+            Field rowState = mutableStateField(row);
             hook(rowInvoke).intercept(chain -> {
                 Object thiz = chain.getThisObject();
                 if (thiz != null && rowKind.getByte(thiz) == 7) {
@@ -617,6 +616,25 @@ public class ModuleMain extends XposedModule {
         } catch (Throwable t) {
             return null;
         }
+    }
+
+    private static Field mutableStateField(Class<?> type) throws NoSuchFieldException {
+        Field found = null;
+        for (Field f : type.getDeclaredFields()) {
+            Class<?> ft = f.getType();
+            if (ft.isPrimitive() || "android.content.Context".equals(ft.getName())) {
+                continue;
+            }
+            if (found != null) {
+                throw new NoSuchFieldException("ambiguous state field on " + type.getName());
+            }
+            found = f;
+        }
+        if (found == null) {
+            throw new NoSuchFieldException("no state field on " + type.getName());
+        }
+        found.setAccessible(true);
+        return found;
     }
 
     private static void forceMutableStateFalse(Object state) {

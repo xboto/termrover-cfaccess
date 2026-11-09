@@ -192,7 +192,30 @@ public final class Names {
         quickSettings = "y"; quickSettingsBody = "x"; quickSettingsHost = "pa";
     }}.build();
 
-    private static final Names[] ALL = {V1_4_1, V1_4_0, V1_3_1};
+    static final Names V1_4_2 = new Builder() {{
+        version = "1.4.2";
+        unit = "m36"; fn0 = "i32"; fn1 = "j32"; modifier = "zs3"; modifierCompanion = "ws3";
+        composer = "ht0"; switchColors = "em5"; shape = "a85"; continuation = "xx0";
+        metaReader = "cn6"; sessionsReader = "sl3"; cctBackend = "mb"; cctUpload = "d";
+        cctRequest = "ii0"; cctResponse = "cl0"; crashWriter = "vb5"; crashWriterMethod = "a";
+        aboutReader = "i75"; switchCallback = "el"; rowToggle = "yk";
+        themes = "yu5"; theme = "lo5"; themeChrome = "um0";
+        conn = "lh5"; connSocket = "D"; connCancel = "I"; connSuspend = "J"; connSuspendFn = "fg5";
+        transportFactory = "bm"; directKind = -1; socketTransport = "td5";
+        formFields = "fq0"; formField = "s"; fieldRestart = "ps2"; rows = "mc5"; toggleRow = "Z";
+        graphicsLayerFloats = 5; graphicsLayerAlphaMask = 1 | 2 | 0x20 | 0x100 | 0x800 | 0x1000;
+        authRow = "l"; authOption = "k"; authEnum = "b30"; transportEnum = "pu0";
+        transportPickerOwner = "x46"; transportPicker = "a";
+        clipOwner = "x46"; clip = "o"; borderOwner = "ho6"; border = "j"; rectShapeOwner = "ij6";
+        rectShape = "i"; roundedOwner = "rt4"; rounded = "b"; spOwner = "jb5"; sp = "m";
+        switchColorsOwner = "lo6"; switchColorsFn = "b"; fontWeight = "vz1"; fontFamily = "qy1";
+        textDecoration = "es5"; textAlign = "xr5"; textStyle = "ru5"; text = "wt5"; colors = "z54";
+        profile = "nt2"; menu = "u31"; menuRow = "R"; menuItems = "P";
+        session = "f"; sessionParams = 36; switcher = "f0"; switcherNoteArg = true;
+        quickSettings = "y"; quickSettingsBody = "x"; quickSettingsHost = "ta";
+    }}.build();
+
+    private static final Names[] ALL = {V1_4_2, V1_4_1, V1_4_0, V1_3_1};
 
     public static Names detect(ClassLoader cl) {
         for (Names n : ALL) {

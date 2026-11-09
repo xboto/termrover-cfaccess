@@ -142,7 +142,19 @@ final class CfModeUi {
         try {
             Class<?> rows = Class.forName(n.rows, false, cl);
             Class<?> state = Class.forName(n.quickSettingsHost, false, cl);
-            Field stateProfile = state.getDeclaredField("l");
+            Class<?> profileCls = Class.forName(n.profile, false, cl);
+
+            Field foundProfile = null;
+            for (Field f : state.getDeclaredFields()) {
+                if (f.getType() == profileCls) {
+                    foundProfile = f;
+                    break;
+                }
+            }
+            if (foundProfile == null) {
+                throw new NoSuchFieldException(n.quickSettingsHost + ".<profile:" + n.profile + ">");
+            }
+            final Field stateProfile = foundProfile;
             stateProfile.setAccessible(true);
             Method host = null, sheet = null, body = null;
             for (Method m : rows.getDeclaredMethods()) {
