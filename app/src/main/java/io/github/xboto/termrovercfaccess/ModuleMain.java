@@ -177,15 +177,27 @@ public class ModuleMain extends XposedModule {
         }
         try {
             Class<?> reader = Class.forName(n.metaReader, false, cl);
-            Method s = reader.getDeclaredMethod("S", String.class);
+
+            Method s = null;
+            for (String name : new String[]{"S", "V"}) {
+                try {
+                    s = reader.getDeclaredMethod(name, String.class);
+                    break;
+                } catch (NoSuchMethodException ignored) {
+                }
+            }
+            if (s == null) {
+                throw new NoSuchMethodException(n.metaReader + ".S|V(String)");
+            }
+            final String hooked = s.getName();
             hook(s).intercept(chain -> {
                 Boolean forced = forcedFlag((String) chain.getArg(0));
                 return forced != null ? forced : chain.proceed();
             });
             metaHooked.set(true);
-            log(Log.INFO, TAG, "hooked " + n.metaReader + ".S");
+            log(Log.INFO, TAG, "hooked " + n.metaReader + "." + hooked);
         } catch (Throwable t) {
-            log(Log.WARN, TAG, n.metaReader + ".S hook skipped: " + t.getMessage());
+            log(Log.WARN, TAG, n.metaReader + " meta hook skipped: " + t.getMessage());
         }
     }
 

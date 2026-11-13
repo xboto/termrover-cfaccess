@@ -156,14 +156,16 @@ final class CfModeUi {
             }
             final Field stateProfile = foundProfile;
             stateProfile.setAccessible(true);
+            Class<?> modifierCls = Class.forName(n.modifier, false, cl);
             Method host = null, sheet = null, body = null;
             for (Method m : rows.getDeclaredMethods()) {
                 Class<?>[] p = m.getParameterTypes();
                 if (m.getName().equals("a") && p.length == 6 && p[0] == state) host = m;
+
                 if (m.getName().equals(n.quickSettings) && p.length == 10 && p[0] == String.class
-                        && p[1] == boolean.class && p[5] == fn1Cls) sheet = m;
+                        && p[1] == boolean.class && p[5] == fn1Cls && p[7] == fn0) sheet = m;
                 if (m.getName().equals(n.quickSettingsBody) && p.length == 10 && p[0] == String.class
-                        && p[1] == boolean.class && p[5] == fn1Cls) body = m;
+                        && p[1] == boolean.class && p[5] == fn1Cls && p[7] == modifierCls) body = m;
             }
             if (host == null || sheet == null || body == null) {
                 throw new NoSuchMethodException("Quick settings: " + host + ", " + sheet + ", " + body);

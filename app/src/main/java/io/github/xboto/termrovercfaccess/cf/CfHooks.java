@@ -90,8 +90,23 @@ public final class CfHooks {
             fTarget.setAccessible(true);
             Class<?> continuation = Class.forName(n.continuation, false, cl);
             Method create = factory.getDeclaredMethod("create", continuation);
+            Class<?> transportIface = Class.forName(
+                    "org.connectbot.sshlib.transport.Transport", false, cl);
             Constructor<?> transport = Class.forName(n.socketTransport, false, cl)
                     .getConstructor(Socket.class);
+
+            Field fTransport = null;
+            for (Field f : connCls.getDeclaredFields()) {
+                if (f.getType() == transportIface) {
+                    fTransport = f;
+                    break;
+                }
+            }
+            if (fTransport == null) {
+                throw new NoSuchFieldException(n.conn + ".<Transport>");
+            }
+            fTransport.setAccessible(true);
+            final Field transportField = fTransport;
             int directKind = n.directKind;
             XposedInterface.HookHandle first = xp.hook(invokeSuspend).intercept(chain -> {
                 Object self = chain.getThisObject();
@@ -119,6 +134,7 @@ public final class CfHooks {
                     if (flags.cancelled(conn)) throw new IOException("SSH connection cancelled");
                     log("Access: " + host + " (profile port " + fPort.getInt(conn) + " ignored)");
                     Socket[] holder = new Socket[1];
+                    Object built = null;
                     try {
                         Socket s = bridge().open(appContext(), host, fTimeout.getInt(self), sock -> {
                             holder[0] = sock;
@@ -129,10 +145,12 @@ public final class CfHooks {
                         });
                         if (flags.cancelled(conn)) throw new IOException("SSH connection cancelled");
                         try {
-                            return transport.newInstance(s);
+                            built = transport.newInstance(s);
                         } catch (java.lang.reflect.InvocationTargetException e) {
                             throw e.getCause() != null ? e.getCause() : e;
                         }
+                        transportField.set(conn, built);
+                        return built;
                     } catch (Throwable t) {
                         Socket s = holder[0];
                         if (s != null) {
@@ -144,6 +162,12 @@ public final class CfHooks {
                                 if (fSock.get(conn) == s) fSock.set(conn, null);
                             } catch (Throwable ignored) {
                             }
+                        }
+                        try {
+                            if (built != null && transportField.get(conn) == built) {
+                                transportField.set(conn, null);
+                            }
+                        } catch (Throwable ignored) {
                         }
                         log("Access: failed to open " + host + ": " + t);
                         throw t;

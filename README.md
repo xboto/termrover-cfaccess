@@ -10,7 +10,7 @@ A [Vector](https://github.com/JingMatrix/Vector) / libxposed module for [TermRov
 ## Requirements
 
 - Android arm64 with Vector (API 102) or a compatible framework
-- TermRover 1.4.2, 1.4.1, 1.4.0 or 1.3.1
+- TermRover 1.5.0, 1.4.2, 1.4.1, 1.4.0 or 1.3.1
 - Module scope: `sh.termrover.app`
 
 ## Installation
