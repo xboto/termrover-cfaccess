@@ -263,7 +263,30 @@ public final class Names {
         quickSettings = "z"; quickSettingsBody = "y"; quickSettingsHost = "xa";
     }}.build();
 
-    private static final Names[] ALL = {V1_5_1, V1_5_0, V1_4_2, V1_4_1, V1_4_0, V1_3_1};
+    static final Names V1_5_2 = new Builder() {{
+        version = "1.5.2";
+        unit = "zq6"; fn0 = "p72"; fn1 = "q72"; modifier = "y14"; modifierCompanion = "v14";
+        composer = "su0"; switchColors = "z86"; shape = "su5"; continuation = "jz0";
+        metaReader = "ra7"; sessionsReader = "ts3"; cctBackend = "vb"; cctUpload = "c";
+        cctRequest = "ej0"; cctResponse = "yl0"; crashWriter = "fx4"; crashWriterMethod = "c";
+        aboutReader = "zt5"; switchCallback = "ql"; rowToggle = "kl";
+        themes = "di6"; theme = "kb6"; themeChrome = "qn0";
+        conn = "w36"; connSocket = "D"; connCancel = "I"; connSuspend = "J"; connSuspendFn = "l26";
+        transportFactory = "nm"; directKind = -1; socketTransport = "xz5";
+        formFields = "g51"; formField = "j"; fieldRestart = "mz2"; rows = "s15"; toggleRow = "d0";
+        graphicsLayerFloats = 5; graphicsLayerAlphaMask = 1 | 2 | 0x20 | 0x100 | 0x800 | 0x1000;
+        authRow = "d"; authOption = "c"; authEnum = "p30"; transportEnum = "cw0";
+        transportPickerOwner = "br7"; transportPicker = "g";
+        clipOwner = "re0"; clip = "o"; borderOwner = "l61"; border = "u"; rectShapeOwner = "jr0";
+        rectShape = "y"; roundedOwner = "bg5"; rounded = "b"; spOwner = "bx4"; sp = "r";
+        switchColorsOwner = "jq4"; switchColorsFn = "c"; fontWeight = "z32"; fontFamily = "u22";
+        textDecoration = "ff6"; textAlign = "ye6"; textStyle = "th6"; text = "yg6"; colors = "cf4";
+        profile = "h03"; menu = "bf3"; menuRow = "s"; menuItems = "q";
+        session = "f"; sessionParams = 38; switcher = "j0"; switcherNoteArg = true;
+        quickSettings = "z"; quickSettingsBody = "y"; quickSettingsHost = "cb";
+    }}.build();
+
+    private static final Names[] ALL = {V1_5_2, V1_5_1, V1_5_0, V1_4_2, V1_4_1, V1_4_0, V1_3_1};
 
     public static Names detect(ClassLoader cl) {
         for (Names n : ALL) {
